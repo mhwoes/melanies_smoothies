@@ -1,0 +1,60 @@
+# Import python packages
+import streamlit as st
+from snowflake.snowpark.context import get_active_session
+from snowflake.snowpark.functions import col
+
+# Write directly to the app
+st.title(f"Customize Your Smoothie! :cup_with_straw: {st.__version__}")
+st.write(
+  """Choose the gruits you want in your custom Smoothie!
+  """
+)
+
+name_on_order = st.text_input("Name on Smoothie:")
+st.write("The name on the Smoothie will be:", name_on_order)
+
+# LESSON 3 "Focus on the FRUIT_NAME Column" AFTER (SEE BELOW)
+
+session = get_active_session()
+my_dataframe = session.table("smoothies.public.fruit_options").select(col('FRUIT_NAME'))
+#st.dataframe(data=my_dataframe, use_container_width=True)
+
+# uses multiselect from my_dataframe above.
+ingredients_list = st.multiselect(
+    'Choose up to 5 ingredients:'
+    , my_dataframe
+    , max_selections = 5
+)
+
+# st.write("You selected:", ingredients_list)
+# st.text(ingredients_list)
+
+# means "if ingredients_list is not null then..." this deletes empty text and boxes "[]"
+if ingredients_list:
+
+    ingredients_string = ''
+
+    # for each fruit_chosen in ingredients_list multiselect box: do everything below this line that is indented.
+    for fruit_chosen in ingredients_list:
+        ingredients_string += fruit_chosen + ' '
+
+    #st.write(ingredients_string)
+
+    my_insert_stmt = """ insert into smoothies.public.orders(ingredients,name_on_order)
+                    values ('""" + ingredients_string + """','""" + name_on_order + """')"""
+
+
+    st.write(my_insert_stmt)
+    #st.stop() # Stops the streamlit process for trouble shooting
+    
+    time_to_insert = st.button('Submit Order')
+    
+    if time_to_insert:
+        session.sql(my_insert_stmt).collect()
+        st.success('Your Smoothie is ordered, ' + name_on_order + '!', icon="✅")
+
+
+# LESSON 3 "Focus on the FRUIT_NAME Column" BEFORE
+#session = get_active_session()
+#my_dataframe = session.table("smoothies.public.fruit_options")
+#st.dataframe(data=my_dataframe, use_container_width=True)

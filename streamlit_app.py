@@ -52,8 +52,6 @@ if ingredients_list:
         session.sql(my_insert_stmt).collect()
         st.success('Your Smoothie is ordered, ' + name_on_order + '!', icon="✅")
 
-
-# LESSON 3 "Focus on the FRUIT_NAME Column" BEFORE
-#session = get_active_session()
-#my_dataframe = session.table("smoothies.public.fruit_options")
-#st.dataframe(data=my_dataframe, use_container_width=True)
+import requests  
+smoothiefroot_response = requests.get("[https://my.smoothiefroot.com/api/fruit/watermelon](https://my.smoothiefroot.com/api/fruit/watermelon)")  
+st.text(smoothiefroot_response)
